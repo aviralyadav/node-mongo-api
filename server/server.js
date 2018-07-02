@@ -2,8 +2,9 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
-
-var router = app.router;
+var {ObjectID} = require('mongodb');
+const port = process.env.PORT || 3001;
+// var router = app.router;
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -59,8 +60,23 @@ app.get('/products', (req, res)=>{
     Product.find({}).then(products=>{res.send({products})}, err=>res.send(err));
 });
 
-app.listen(process.env.PORT || 3001, ()=>{
-    console.log('Server started at 3001');
+app.get('/products/:id', (req, res)=>{
+    var id = req.params.id;
+    if(!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+    Product.findById(id).then(product=>{
+        if(!product) {
+            return res.status(404).send();
+        }
+        res.send(product);
+    }).catch(err=>{
+        res.status(400).send();
+    });
+});
+
+app.listen(port, ()=>{
+    console.log(`Server started at ${port}`);
 });
 
 module.exports = {app};
