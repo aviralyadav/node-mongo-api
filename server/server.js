@@ -1,7 +1,9 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var cors = require('cors');
+const _ = require('lodash');
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
 var {ObjectID} = require('mongodb');
 const port = process.env.PORT || 3001;
 // var router = app.router;
@@ -11,6 +13,7 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 var {Message} = require('./models/message');
 var {Product} = require('./models/product');
+var {SIMAGE} = require('./models/simage');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -87,6 +90,42 @@ app.delete('/todos/:id', (req, res)=>{
         res.send(todo);
     }, err=>{
         res.status(400).send();
+    });
+});
+
+app.patch('/todos/:id', (req, res)=>{
+    var id = req.params.id;
+    var body = _.pick(req.body, ['text', 'completed']);
+    if(!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+    if(_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+        .then(todo=>{
+            if(!todo){
+                return res.status(404).send()
+            }
+            res.send({todo});
+        },err=>{
+            res.status(400).send();
+        });
+});
+
+app.get('/images', (req, res)=>{
+    SIMAGE.find({}).then(imgs=>{
+        res.send(imgs);
+    });
+});
+
+app.post('/images', (req, res)=>{
+    var newS = new SIMAGE(req.body);
+    newS.save().then(img=>{
+        res.send(img);
     });
 });
 
