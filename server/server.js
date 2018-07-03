@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 var {ObjectID} = require('mongodb');
-const port = process.env.PORT || 3001;
+const port = process.env.PORT;
 // var router = app.router;
 
 var {mongoose} = require('./db/mongoose');
@@ -128,6 +128,18 @@ app.post('/images', (req, res)=>{
     var newS = new SIMAGE(req.body);
     newS.save().then(img=>{
         res.send(img);
+    });
+});
+
+app.post('/users', (req, res)=>{
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+    user.save().then(()=>{
+        return user.generateAuthToken();
+    }).then((token)=>{
+        res.header('x-auth', token).send(user);
+    }).catch(err=>{
+        res.status(400).send(err);
     });
 });
 
