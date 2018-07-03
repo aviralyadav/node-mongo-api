@@ -16,6 +16,7 @@ var {User} = require('./models/user');
 var {Message} = require('./models/message');
 var {Product} = require('./models/product');
 var {SIMAGE} = require('./models/simage');
+var {authenticate} = require('./middleware/authenticate');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -141,6 +142,10 @@ app.post('/users', (req, res)=>{
     }).catch(err=>{
         res.status(400).send(err);
     });
+});
+
+app.get('/users/me', authenticate, (req, res)=>{
+    res.send(req.user);
 });
 
 app.listen(port, ()=>{
