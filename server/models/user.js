@@ -5,7 +5,13 @@ var User = mongoose.model('User', {
         type: String,
         required: true,
         trim: true,
-        minlength: 1
+        minlength: 1,
+        unique: true,
+        validate: {
+            validator: () =>{
+                
+            }
+        }
     },
     password: {
         type: String
