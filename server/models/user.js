@@ -36,7 +36,7 @@ var UserSchema = new mongoose.Schema({
 UserSchema.methods.toJSON = function () {  //// instance method created using 'methods'
     var user = this;
     var userObject = user.toObject();
-    return _.pick(userObject, ['_id', 'email']);
+    return _.pick(userObject, ['_id', 'email', 'tokens']);
 }
 
 UserSchema.methods.generateAuthToken = function () {   //// instance method created using 'methods'
